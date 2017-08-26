@@ -1,76 +1,85 @@
 /*
-
- BoopClient 1.0.5.6
+ 
+ BoopClient 1.0.5.7
  A chat client for booping.
  
- Changelog:
- 
- --- Previous Version
- - Client now detects if there isn't an info.txt file and automatically generates one instead of crashing
- - Added |countdown() command (ex: countdown(100) -- message disappears in 100 ticks)
- - Made |VERSION command more reliant on server response
- - Made |CLEAR and |FLUSH position next message correctly
- - Added disappearing message indicating that messages have been cleared
- - Added DARKBLUE color for bg and tc
- - Added update() method for messages class -> allows removal of individual messages without disrupting display method
- 
+ Changelog: 
  --- New Version
- - Added light and dark modes
- - Added |MODE command (ex: light|MODE)
- - Decreased brightness of bottom typing bar for dark mode to match theme
- 
- To-do:
- - Other things probably
+ - Made colored text work in light mode
+ - Made countdown() work properly at times below 5 milliseconds
+ - Added |LC command to turn entire message lowercase
+ - Renamed |CAPS command to |UC, as in uppercase, to match |LC format
+ - Made changing name no longer impact mode
  
  */
 
+//*****************************//
+//   IMPORTS, VARIABLES, ETC   //
+//*****************************//
+
+// IMPORTS
 import processing.net.*;
 
+// NETWORK
 Client myClient;
-
-String str = "start typing...";
-String inString ="";
-String typing = "Loading BoopClient...";
-Boolean isTyping = false;
-
 DisposeHandler dh;
+int port = 10001;
 
+// PLACEHOLDERS
+String str = "start typing...";
+String typing = "Loading BoopClient...";
+String inString ="";
+
+// REGULATORS
 int messagesHeight = 0;
-
 int lastTypeFrame= 0;
 int typingFrameLimit = 250;
+int rainbowStep = 0;
+Boolean isTyping = false;
 
-String version = "1.0.5.6"; // IF YOU UPDATE THIS, UPDATE LATESTCLIENT ON SERVER AS WELL
+// USER SETTINGS
+String version = "1.0.6"; // IF YOU UPDATE THIS, UPDATE LATESTCLIENT ON SERVER AS WELL
 String username;
 String mode;
-
 boolean rainbowMode = false;
-int rainbowStep = 0;
 
+// LISTS
 ArrayList<message> messages = new ArrayList<message>();
+
+
+
+//*****************************//
+//       SETUP  FUNCTION       //
+//*****************************//
 
 void setup() {
   size(300, 500);
   surface.setResizable(true);
   dh = new DisposeHandler(this);
 
-  if (loadStrings("info.txt").length == 2) {
-    String info[] = loadStrings("info.txt");
-    username = info[0];
-    mode = info[1];
-  } else {
-    String[] info = new String[2];
-    info[0]="SetYourNameBro";
-    info[1]="dark";
+  // LOAD SETTINGS
+  String[] info = new String[2];
+  if (loadStrings("info.txt") == null) {
+    info[0] = "SetYourNameBro";
+    info[1] = "dark";
     saveStrings("info.txt", info);
-    username = info[0];
-    mode = info[1];
+  } else if (loadStrings("info.txt").length == 2) {
+    info = loadStrings("info.txt");
   }
 
-  myClient = new Client(this, "54.208.53.64", 10001);
+  username = info[0];
+  mode = info[1];
+
+  myClient = new Client(this, "54.208.53.64", port); // CONNECT TO SERVER & SEND INITIAL MESSAGE
   myClient.write(username + " has connected!|BGBLUE|weight(5)");
-  typing="Hello, "+username+"!";
+  typing="Hello, "+username+"!"; // GREET USER
 }
+
+
+
+//*****************************//
+//        DRAW FUNCTION        //
+//*****************************//
 
 void draw() {
   if (mode.equals("dark")) {
@@ -272,7 +281,7 @@ class message {
         int g = int(storage.substring(0, storage.indexOf(",")));
         int b = int(storage.substring(storage.indexOf(",")+1, storage.indexOf(")")));
         bg = color(r, g, b);
-        tc = color(255-(r+g+b)/3);
+        tc = bg/2;
       }
 
       if (in.contains("|BLUE")) {
@@ -316,8 +325,10 @@ class message {
         countdown = int(storage.substring(storage.indexOf("(")+1, storage.indexOf(")")));
       }
 
-      if (in.contains("|CAPS")) {
+      if (in.contains("|UC")) {
         text = in.substring(0, in.indexOf("|")).toUpperCase();
+      } else if (in.contains("|LC")) {
+        text = in.substring(0, in.indexOf("|")).toLowerCase();
       } else if (in.contains("|")) {
         text = in.substring(0, in.indexOf("|"));
       } else {
@@ -332,7 +343,6 @@ class message {
     }
 
     if (mode.equals("light")) {
-      tc = color(10);
       bg = color(red(bg)+50, green(bg)+50, blue(bg)+50);
     }
   }
@@ -363,7 +373,7 @@ class message {
   }
 
   void update() {
-    if (countdown > 0) {
+    if (countdown >= 0) {
       countdown--;
     }
 
