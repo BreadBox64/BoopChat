@@ -149,7 +149,7 @@ void keyPressed() {
     } else if (str.equals("|RAINBOW")) {
       rainbowMode ^= true;
     } else if (str.contains("|CHANGENAME")) {
-      String[] temp = {str.substring(0, str.indexOf("|"))};
+      String[] temp = {str.substring(0, str.indexOf("|")), mode};
       saveStrings("info.txt", temp);
       myClient.write(username+" has changed their name to "+temp[0]+"!|BGORANGE|weight(5)|NC");
       username = temp[0];
