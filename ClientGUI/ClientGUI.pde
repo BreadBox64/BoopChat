@@ -1,15 +1,13 @@
 /*
  
- BoopClient 1.0.5.7
+ BoopClient 1.0.5.8
  A chat client for booping.
  
  Changelog: 
  --- New Version
- - Made colored text work in light mode
- - Made countdown() work properly at times below 5 milliseconds
- - Added |LC command to turn entire message lowercase
- - Renamed |CAPS command to |UC, as in uppercase, to match |LC format
- - Made changing name no longer impact mode
+ - Fixed Issue #3 - Fix colors of the "Messages Flushed!" message
+ - Adjusted text wrapping to use textWdith() instead of eyeballed values
+ - Made typing box always show last letter typed; scrolls when message is longer than width
  
  */
 
@@ -70,7 +68,7 @@ void setup() {
   username = info[0];
   mode = info[1];
 
-  myClient = new Client(this, "54.208.53.64", port); // CONNECT TO SERVER & SEND INITIAL MESSAGE
+  myClient = new Client(this, "localhost", port); // CONNECT TO SERVER & SEND INITIAL MESSAGE
   myClient.write(username + " has connected!|BGBLUE|weight(5)");
   typing="Hello, "+username+"!"; // GREET USER
 }
@@ -132,7 +130,11 @@ void draw() {
   rect(-10, height-30, width+10, 30);
 
   fill(0);
-  text(str, 12, height-10);
+  if(textWidth(str)<width-20){
+    text(str, 12, height-10);
+  }else{
+    text(str, 12-textWidth(str)+width-20, height-10);
+  }
   textAlign(CENTER);
 
   if (mode.equals("dark")) {
@@ -229,7 +231,7 @@ class message {
 
     if (in.contains("|FLUSH")) {
       messages.clear();
-      messages.add(new message("Messages flushed!|bgrgb(0,0,75)|weight(5)|countdown(500)"));
+      messages.add(new message("Messages flushed!|BGDARKBLUE|weight(5)|countdown(500)"));
     } else if (in.contains("|TYPING")) {
       typing=in.substring(0, in.indexOf("|"))+" is typing...";
     } else if (in.contains("|NOTTYPING")) {
@@ -351,7 +353,7 @@ class message {
     if (text == null) {
     } else {
       w = width-20; 
-      lines = int((text.length()*6.5)/w);
+      lines = int(textWidth(text)/(w-15));
       h = 30+lines*20;
       y = pos;
       pushStyle();
@@ -367,7 +369,7 @@ class message {
       rect(x, y, w, h);
 
       fill(tc);
-      text(text, x+8, y+10, w-20, h-10);
+      text(text, x+8, y+10, w-15, h-10);
       popStyle();
     }
   }
