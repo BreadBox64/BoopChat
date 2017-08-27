@@ -70,6 +70,11 @@
 
 ## Client
 
+### 1.0.5.8:
+- Fixed Issue #3 - Fix colors of the "Messages Flushed!" message
+- Adjusted text wrapping to use textWdith() instead of eyeballed values
+- Made typing box always show last letter typed; scrolls when message is longer than width
+
 ### 1.0.5.7:
 - Made colored text work in light mode
 - Made countdown() work properly at times below 5 milliseconds
