@@ -68,7 +68,7 @@ void setup() {
   username = info[0];
   mode = info[1];
 
-  myClient = new Client(this, "localhost", port); // CONNECT TO SERVER & SEND INITIAL MESSAGE
+  myClient = new Client(this, "54.208.53.64", port); // CONNECT TO SERVER & SEND INITIAL MESSAGE
   myClient.write(username + " has connected!|BGBLUE|weight(5)");
   typing="Hello, "+username+"!"; // GREET USER
 }
