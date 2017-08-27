@@ -70,6 +70,13 @@
 
 ## Client
 
+### 1.0.5.7:
+- Made colored text work in light mode
+- Made countdown() work properly at times below 5 milliseconds
+- Added |LC command to turn entire message lowercase
+- Renamed |CAPS command to |UC, as in uppercase, to match |LC format
+- Made changing name no longer impact mode
+
 ### 1.0.5.6:
 - Added light and dark modes
 - Added |MODE command (ex: light|MODE)
@@ -122,9 +129,9 @@
 -Made "Connectioin Diagnostics" that print to the console during the connection phase.
 - Added changelog
 
-1.0.1:
+### 1.0.1:
 - Added version variable and |VERSION command
 - Added colored text and backgrounds
 
-1.0:
+### 1.0:
 - Initial Release
