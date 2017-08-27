@@ -22,7 +22,7 @@ boolean myServerRunning = true;
 
 // VERSIONS
 String version = "1.1";
-String latestClient = "1.0.6";
+String latestClient = "1.0.5.8";
 
 // REGULATORS
 float timer = 1; // Make multiple timers a possibility in future by using array
