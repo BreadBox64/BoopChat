@@ -24,7 +24,7 @@ void keyPressed() {
     }
 
     str = "start typing...";
-  } else if (keyCode == SHIFT||keyCode == CONTROL||keyCode == ALT||keyCode == ) {
+  } else if (keyCode == SHIFT||keyCode == CONTROL||keyCode == ALT) {
   } else if (key == BACKSPACE) {
     if (str.length()>1) {
       if (str == "start typing...") {
