@@ -75,7 +75,7 @@
 - New default theme (Dark blue)
 - Added mechanism to adjust GUI based on width of window
 - List of onlne users now shown for larger window sizes
--- User names stored in ArrayList, step towards private messaging
+- User names stored in ArrayList, step towards private messaging
 - Added rgb(r,g,b)|MODE feature
 - Formatted code to adopt benefits of using GitHub
 - Included windows application in download
