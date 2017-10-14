@@ -70,6 +70,16 @@
 
 ## Client
 
+### 1.0.6:
+- Added color modes for all supported colors except yellow (use gold instead)
+- New default theme (Dark blue)
+- Added mechanism to adjust GUI based on width of window
+- List of onlne users now shown for larger window sizes
+-- User names stored in ArrayList, step towards private messaging
+- Added rgb(r,g,b)|MODE feature
+- Formatted code to adopt benefits of using GitHub
+- Included windows application in download
+
 ### 1.0.5.8:
 - Fixed Issue #3 - Fix colors of the "Messages Flushed!" message
 - Adjusted text wrapping to use textWdith() instead of eyeballed values
