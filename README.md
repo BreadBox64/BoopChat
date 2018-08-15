@@ -34,4 +34,4 @@ Your Pages site will use the layout and styles from the Jekyll theme you have se
 
 ### Support or Contact
 
-If you have any questions about BoopChat, or just want to chat, send an email to [skaplanofficial@gmail.com](skaplanofficial@gmail.com)!
+If you have any questions about BoopChat, or just want to chat, send an email to skaplanofficial@gmail.com!
