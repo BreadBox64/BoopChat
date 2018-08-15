@@ -8,7 +8,7 @@ The guiding principles of BoopChat are very simple. We wanted to communicate in 
 ### Images
 
 <center>
-The client and server viewed side by side. Note that messages can also be sent from the server, meaning that running both programs as seen above is entirely unnecesary.
+The client and server viewed side by side. Note that messages can also be sent from the server, meaning that running both programs as seen above is entirely unnecesary.<br>
 <img src="https://i.imgur.com/4NoZLca.png" width="60%" style="border: 10px solid #333333">
 
 
