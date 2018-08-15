@@ -9,8 +9,8 @@ The guiding principles of BoopChat are very simple. We wanted to communicate in 
 ![Image](https://i.imgur.com/4NoZLca.png =250x250)
 ![Image](https://i.imgur.com/110jQ8H.png =250x250)
 
-<img src="https://i.imgur.com/4NoZLca.png" width="100">
-<img src="https://i.imgur.com/110jQ8H.png" width="100">
+<img src="https://i.imgur.com/4NoZLca.png" width="80%">
+<img src="https://i.imgur.com/110jQ8H.png" width="80%">
 
 
 ### Markdown
