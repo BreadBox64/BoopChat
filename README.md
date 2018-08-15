@@ -58,7 +58,7 @@ bgrgb(r,g,b) | rgb(r,g,b)
 <center>
 The client and server viewed side by side. Note that messages can also be sent from the server, meaning that running both programs as seen above is entirely unnecesary.<br>
 <img src="https://i.imgur.com/4NoZLca.png" width="60%" style="border: 10px solid rgb(40,100,190)"><br><br>
-The isolated client, shown in a light color mode.<br>
+The isolated client, shown in a dark color mode.<br>
 <img src="https://i.imgur.com/110jQ8H.png" width="60%" style="border: 10px solid rgb(40,100,190)">
 </center>
 
