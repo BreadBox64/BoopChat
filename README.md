@@ -9,11 +9,11 @@ The guiding principles of BoopChat are very simple. We wanted to communicate in 
 
 <center>
 The client and server viewed side by side. Note that messages can also be sent from the server, meaning that running both programs as seen above is entirely unnecesary.
-<img src="https://i.imgur.com/4NoZLca.png" width="60%">
+<img src="https://i.imgur.com/4NoZLca.png" width="60%" style="border: 10px solid #333333">
 
 
 The isolated client, shown in a light color mode.<br>
-<img src="https://i.imgur.com/110jQ8H.png" width="60%">
+<img src="https://i.imgur.com/110jQ8H.png" width="60%" style="border: 10px solid #333333">
 </center>
 
 
