@@ -5,12 +5,15 @@ BoopChat began as a solution to boredom. My friend was over, we had nothing to d
 The guiding principles of BoopChat are very simple. We wanted to communicate in a nerdy way, and this approach fits the bill quite well. I personally wanted to use our creation as a way to teach young programmers the "imagine it, create it, share it" mindset that I've always had.
 
 
+### Installation
+
+
+
 ### Images
 
 <center>
 The client and server viewed side by side. Note that messages can also be sent from the server, meaning that running both programs as seen above is entirely unnecesary.<br>
-<img src="https://i.imgur.com/4NoZLca.png" width="60%" style="border: 10px solid #333333"><br>
-
+<img src="https://i.imgur.com/4NoZLca.png" width="60%" style="border: 10px solid #333333"><br><br>
 
 The isolated client, shown in a light color mode.<br>
 <img src="https://i.imgur.com/110jQ8H.png" width="60%" style="border: 10px solid #333333">
