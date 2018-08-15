@@ -37,15 +37,13 @@ The most basic usage of BoopChat is typing a word or phrase and pressing enter (
 
 All commands are preceeded by a | symbol.
 
-#### Style
-
-Text Background | Text Color | Other
------------- | ------------- | -------------
-BGRED | RED | weight(int)
-BGPINK | PINK | RAINBOW
-BGMAROON | MAROON
-BGPURPLE | PURPLE
-BGBLUE | BLUE
+Text Background | Text Color | Styling | Message Management | Utility | Server Management
+------------ | ------------- | ------------- | ------------- | ------------- | -------------
+BGRED | RED | weight(int) | UC | MATH
+BGPINK | PINK | RAINBOW | LC | timer(float)
+BGMAROON | MAROON |  | countdown(int) | COMMANDS
+BGPURPLE | PURPLE |  | msg(user) | VERSION
+BGBLUE | BLUE | 
 BGLIGHTBLUE | LIGHTBLUE
 BGDARKBLUE | DARKBLUE
 BGGREEN | GREEN
@@ -53,8 +51,6 @@ BGDARKGREEN | DARKGREEN
 BGYELLOW | YELLOW
 BGORANGE | ORANGE
 bgrgb(r,g,b) | rgb(r,g,b)
-#### Utility
-#### Server Management
 
 
 ## Images
