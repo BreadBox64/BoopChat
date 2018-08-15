@@ -1,8 +1,8 @@
-## Welcome to GitHub Pages
+## About BoopChat
 
-You can use the [editor on GitHub](https://github.com/SKaplanOfficial/BoopChat/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+BoopChat began as a solution to boredom. My friend was over, we had nothing to do, so we started experimenting with the network library in Processing java, and, well, here we are.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+The guiding principles of BoopChat are very simple. We wanted to communicate in a nerdy way, and this approach fits the bill quite well. I personally wanted to use our creation as a way to teach young programmers the "imagine it, create it, share it" mindset that I've always had.
 
 ### Markdown
 
@@ -34,4 +34,4 @@ Your Pages site will use the layout and styles from the Jekyll theme you have se
 
 ### Support or Contact
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+If you have any questions about BoopChat, or just want to chat, send an email to [skaplanofficial@gmail.com](skaplanofficial@gmail.com)!
