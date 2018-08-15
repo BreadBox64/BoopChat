@@ -35,7 +35,7 @@ The guiding principles of BoopChat are very simple. We wanted to communicate in 
 
 The most basic usage of BoopChat is typing a word or phrase and pressing enter (For mobile users, a tap on the upper half of the screen is equivalent). While this simple usage allows a very straightforward messaging service, BoopChat *does* offer some great commands.
 
-All commands are preceeded by a "|" symbol.
+All commands are preceeded by a ``|`` symbol.
 
 Text Background | Text Color | Styling | Message Management | Utility | Server Management
 ------------ | ------------- | ------------- | ------------- | ------------- | -------------
