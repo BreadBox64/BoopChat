@@ -12,6 +12,7 @@ The client and server viewed side by side. Note that messages can also be sent f
 
 
 The isolated client, shown in a light color mode.
+
 <img src="https://i.imgur.com/110jQ8H.png" width="60%">
 
 
