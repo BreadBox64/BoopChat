@@ -39,9 +39,9 @@ All commands are preceeded by a | symbol.
 
 Text Background | Text Color | Styling | Message Management | Utility | Server Management
 ------------ | ------------- | ------------- | ------------- | ------------- | -------------
-BGRED | RED | weight(int) | UC | MATH
-BGPINK | PINK | RAINBOW | LC | timer(float)
-BGMAROON | MAROON |  | countdown(int) | COMMANDS
+BGRED | RED | weight(int) | UC | MATH | STOP
+BGPINK | PINK | RAINBOW | LC | timer(float) | KICK
+BGMAROON | MAROON |  | countdown(int) | COMMANDS | FLUSH
 BGPURPLE | PURPLE |  | msg(user) | VERSION
 BGBLUE | BLUE | 
 BGLIGHTBLUE | LIGHTBLUE
