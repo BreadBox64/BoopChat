@@ -5,12 +5,10 @@ BoopChat began as a solution to boredom. My friend was over, we had nothing to d
 The guiding principles of BoopChat are very simple. We wanted to communicate in a nerdy way, and this approach fits the bill quite well. I personally wanted to use our creation as a way to teach young programmers the "imagine it, create it, share it" mindset that I've always had.
 
 ### Images
-
-![Image](https://i.imgur.com/4NoZLca.png =250x250)
-![Image](https://i.imgur.com/110jQ8H.png =250x250)
-
-<img src="https://i.imgur.com/4NoZLca.png" width="80%">
-<img src="https://i.imgur.com/110jQ8H.png" width="80%">
+<center>
+<img src="https://i.imgur.com/4NoZLca.png" width="60%" style="border: 10px solid black;">
+<img src="https://i.imgur.com/110jQ8H.png" width="60%">
+</center>
 
 
 ### Markdown
