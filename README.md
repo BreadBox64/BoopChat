@@ -6,8 +6,8 @@ The guiding principles of BoopChat are very simple. We wanted to communicate in 
 
 ### Images
 
-![Image](https://i.imgur.com/4NoZLca.png)
-![Image](https://i.imgur.com/110jQ8H.png)
+![Image](https://i.imgur.com/4NoZLca.png | width=100))
+![Image](https://i.imgur.com/110jQ8H.png | width=100))
 
 
 ### Markdown
