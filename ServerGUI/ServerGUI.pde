@@ -1,6 +1,6 @@
 /*
  
- BoopServer 1.1
+ BoopServer 1.1.1
  A server for booping.
  
  */
@@ -21,8 +21,8 @@ String str = "start typing...";
 boolean myServerRunning = true;
 
 // VERSIONS
-String version = "1.1";
-String latestClient = "1.0.5.8";
+String version = "1.1.1";
+String latestClient = "1.0.6";
 
 // REGULATORS
 float timer = 1; // Make multiple timers a possibility in future by using array
@@ -60,6 +60,7 @@ void setup() {
 //*****************************//
 
 void draw() {
+  frameRate(100);
   basicUI();
 
   if (myServerRunning == true) {
@@ -353,10 +354,21 @@ void matchTerms(String in, Client thisClient) { // Eventually move some response
     thisClient.write(in.substring(in.indexOf(":")+2, in.indexOf("|"))+" • Server Version: "+version+" • Latest Client: "+latestClient+"|BGBLUE|weight(5)");
   } else if (in.contains("|COMMANDS")) {
     messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | "+in);
-    thisClient.write("Commands must be preceeded by shift+\\. Commands: bgrgb(r,g,b)  rgb(r,g,b)  VERSION  STOP|BGRGB(0,0,0)");
-  } else if (in.contains("|timer(")) {
+    thisClient.write("Commands must be preceeded by shift+\\. Commands: bgrgb(r,g,b)  rgb(r,g,b)  VERSION  STOP  MATH  NC  timer(ms)  FLUSH  weight(pixels)  countdown(ms)  UC  LC|BGRGB(0,0,0)");
+  }else if (in.contains("|msg(")){
     messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | "+in);
-    myServer.write(in.substring(0, in.indexOf(":"))+" has started a timer for "+int(in.substring(in.indexOf("(")+1, in.indexOf(")")))/100+" seconds!|BGORANGE|weight(5)");
+    String target = in.substring(in.indexOf("(")+1,in.indexOf(")"));
+    String from = in.substring(0,in.indexOf(":"));
+    String msg = in.substring(in.indexOf(":")+1, in.indexOf("|"));
+    for (User targetClient:users){
+      if (target.equals(targetClient.getName())){
+        targetClient.getClient().write("["+from+" -> You]"+msg+"|bgrgb(50,50,50)|weight(5)");
+      }
+    }
+    
+  }else if (in.contains("|timer(")) {
+    messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | "+in);
+    myServer.write(in.substring(0, in.indexOf(":"))+" has started a timer for "+round(int(in.substring(in.indexOf("(")+1, in.indexOf(")")))/frameRate)+" seconds!|BGORANGE|weight(5)");
     userTimer = true;
     timer = int(in.substring(in.indexOf("(")+1, in.indexOf(")")));
   } else if (in.contains("|MATH")) {
@@ -367,7 +379,7 @@ void matchTerms(String in, Client thisClient) { // Eventually move some response
         int firstDigit = findFirstNum(math1);
         String num1 = math1.substring(firstDigit, n);
         String num2 = math1.substring(n+1, math1.indexOf("|"));
-        thisClient.write("Received: "+in.substring(in.indexOf(":")+1, in.indexOf("|"))+" \nThe answer is: "+parseFloat(num1)+" * "+parseFloat(num2)+" = "+(parseFloat(num1)*parseInt(num2))+"|BGDARKGREEN|weight(5)");
+        thisClient.write("Received: "+in.substring(in.indexOf(":")+1, in.indexOf("|"))+"••• The answer is: "+parseFloat(num1)+" * "+parseFloat(num2)+" = "+(parseFloat(num1)*parseInt(num2))+"|BGDARKGREEN|weight(5)");
       }
 
       if (in.contains("/") || in.contains("divided by") || in.contains("divide") || in.contains("quotient") || in.contains("\\")) {
@@ -376,7 +388,7 @@ void matchTerms(String in, Client thisClient) { // Eventually move some response
         int firstDigit = findFirstNum(math1);
         String num1 = math1.substring(firstDigit, n);
         String num2 = math1.substring(n+1, math1.indexOf("|"));
-        thisClient.write("Received: "+in.substring(in.indexOf(":")+1, in.indexOf("|"))+" \nThe answer is: "+parseFloat(num1)+" / "+parseFloat(num2)+" = "+(parseFloat(num1)/parseInt(num2))+"|BGDARKGREEN|weight(5)");
+        thisClient.write("Received: "+in.substring(in.indexOf(":")+1, in.indexOf("|"))+"••• The answer is: "+parseFloat(num1)+" / "+parseFloat(num2)+" = "+(parseFloat(num1)/parseInt(num2))+"|BGDARKGREEN|weight(5)");
       }
 
       if (in.contains("+") || in.contains("plus") || in.contains("add") || in.contains("sum")) {
@@ -385,7 +397,7 @@ void matchTerms(String in, Client thisClient) { // Eventually move some response
         int firstDigit = findFirstNum(math1);
         String num1 = math1.substring(firstDigit, n);
         String num2 = math1.substring(n+1, math1.indexOf("|"));
-        thisClient.write("Received: "+in.substring(in.indexOf(":")+1, in.indexOf("|"))+" \nThe answer is: "+parseFloat(num1)+" + "+parseFloat(num2)+" = "+(parseFloat(num1)+parseInt(num2))+"|BGDARKGREEN|weight(5)");
+        thisClient.write("Received: "+in.substring(in.indexOf(":")+1, in.indexOf("|"))+"••• The answer is: "+parseFloat(num1)+" + "+parseFloat(num2)+" = "+(parseFloat(num1)+parseInt(num2))+"|BGDARKGREEN|weight(5)");
       }
 
       if (in.contains("-") || in.contains("minus") || in.contains("subtract")) {
@@ -395,7 +407,7 @@ void matchTerms(String in, Client thisClient) { // Eventually move some response
         String num1 = math1.substring(firstDigit, n);
         String num2 = math1.substring(n+1, math1.indexOf("|"));
         println(num1+" "+num2);
-        thisClient.write("Received: "+in.substring(in.indexOf(":")+1, in.indexOf("|"))+" \nThe answer is: "+parseFloat(num1)+" - "+parseFloat(num2)+" = "+(parseFloat(num1)-parseInt(num2))+"|BGDARKGREEN|weight(5)");
+        thisClient.write("Received: "+in.substring(in.indexOf(":")+1, in.indexOf("|"))+"••• The answer is: "+parseFloat(num1)+" - "+parseFloat(num2)+" = "+(parseFloat(num1)-parseInt(num2))+"|BGDARKGREEN|weight(5)");
       }
     } 
     catch (StringIndexOutOfBoundsException e) { 
