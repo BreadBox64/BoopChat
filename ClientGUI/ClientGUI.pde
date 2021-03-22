@@ -1,18 +1,22 @@
 /*
  
- BoopClient 1.0.6
+ BoopClient 1.0.7
  A chat client for booping.
  
  Changelog: 
- --- New Version
- - Added color modes for all supported colors except yellow (use gold instead)
- - New default theme (Dark blue)
- - Added mechanism to adjust GUI based on width of window
- - List of onlne users now shown for larger window sizes
- -- User names stored in ArrayList, step towards private messaging
- - Added rgb(r,g,b)|MODE feature
- - Formatted code to adopt benefits of using GitHub
- - Included windows application in download
+ - Added support for custom servers and ports via the info.txt document
+ - Key input is now restricted to eliminate junk charecters (i.e. Shift or Caps Lock getting typed in msgs)
+ - Added CHANGESERVER & CHANGEPORT commands
+ - Added EXIT command
+ - Switched message directionality to match the majority of messaging programs
+ - Added colors BLACK, GREY, & WHITE
+ - Moved colors to an internal IntDict to allow quick modification and simple assignment (Just 2 for loops instead of ~24 if-else statments)
+ - Added a trim call to allow formatting of the rgb command like this: "Hello World!|rgb(255, 30, 240)"
+ - Included both 64-bit & 34-bit program binaries
+ - Improved code readability by adding some extra comments and adding spacing arround operators where applicable
+ - Added display in top corner of what server and port is being connected to
+ - Updated rainbow to make more sense
+ - Changed countdown to use seconds
  
  */
 
@@ -25,6 +29,7 @@ import processing.net.*;
 
 // NETWORK
 Client myClient;
+//Server localServer;
 DisposeHandler dh;
 int port = 10001;
 
@@ -42,17 +47,17 @@ int largeWindowAdjust = 0;
 Boolean isTyping = false;
 
 // USER SETTINGS
-String version = "1.0.6"; // IF YOU UPDATE THIS, UPDATE LATESTCLIENT ON SERVER AS WELL
+String version = "1.0.7"; // IF YOU UPDATE THIS, UPDATE LATESTCLIENT ON SERVER AS WELL
 String username;
 String mode;
+String server;
 boolean rainbowMode = false;
 color modeColor;
 
 // LISTS
 ArrayList<message> messages = new ArrayList<message>();
 ArrayList<String> usersOnline = new ArrayList<String>();
-
-
+IntDict colorsDict;
 
 //*****************************//
 //       SETUP  FUNCTION       //
@@ -64,23 +69,52 @@ void setup() {
   dh = new DisposeHandler(this);
 
   // LOAD SETTINGS
-  String[] info = new String[2];
+  String[] info = new String[4];
   if (loadStrings("info.txt") == null) {
     info[0] = "SetYourNameBro";
     info[1] = "rgb(0,30,60)";
+    info[2] = "54.208.53.64";
+    info[3] = "10001";
     saveStrings("info.txt", info);
-  } else if (loadStrings("info.txt").length == 2) {
+  } else {
     info = loadStrings("info.txt");
   }
-
-  username = info[0];
-  mode = info[1];
+  
+  try {
+    username = info[0];
+    mode = info[1];
+    server = info[2];
+    port = int(info[3]);
+  } catch(ArrayIndexOutOfBoundsException e) {
+    username = (info[0] != null) ? info[0] : "InfoLoadError";
+    mode = (info[1] != null) ? info[1] : "rgb(0,30,60)";
+    server = (info[2] != null) ? info[2] : "54.208.53.64";
+    port = int((info[3] != null) ? info[3] : "10001");
+    saveStrings("info.txt", info);
+  }
+  
+  colorsDict = new IntDict();
+  colorsDict.set("RED", color(#FF0000));
+  colorsDict.set("ORANGE", color(#FFA500));
+  colorsDict.set("YELLOW", color(#FFFF00));
+  colorsDict.set("GREEN", color(#00FF00));
+  colorsDict.set("DARKGREEN", color(#006441));
+  colorsDict.set("BLUE", color(#0000FF));
+  colorsDict.set("LIGHTBLUE", color(#75D6FF));
+  colorsDict.set("DARKBLUE", color(#04144C));
+  colorsDict.set("MAROON", color(#7D0A2D));
+  colorsDict.set("PINK", color(#FF1493));
+  colorsDict.set("PURPLE", color(#800080));
+  colorsDict.set("BLACK", color(#000000));
+  colorsDict.set("GREY", color(#B4B4B4));
+  colorsDict.set("WHITE", color(#FFFFFF));
   setModeColor();
-
-  myClient = new Client(this, "54.208.53.64", port); // CONNECT TO SERVER & SEND INITIAL MESSAGE
+  
+  //myClient = new Client(this, "54.208.53.64", port); // CONNECT TO SERVER & SEND INITIAL MESSAGE
   //myClient = new Client(this, "localhost", port); // FOR TESTNG PURPOSES ONLY
+  myClient = new Client(this, server, port);
   myClient.write(username + " has connected!|BGBLUE|weight(5)");
-  typing="Hello, "+username+"!"; // GREET USER
+  typing="Hello, " + username + "!"; // GREET USER
 }
 
 
@@ -92,8 +126,8 @@ void setup() {
 void draw() {
   modeBG();
 
-  if (frameCount - lastTypeFrame > typingFrameLimit && isTyping==true) {
-    myClient.write(username+"|NOTTYPING");
+  if (frameCount - lastTypeFrame > typingFrameLimit && isTyping == true) {
+    myClient.write(username + "|NOTTYPING");
     isTyping = false;
   }
 
@@ -101,6 +135,7 @@ void draw() {
   fill(0, 255, 0);
   if (myClient.available() > 0) { // Get messages, store in ArrayList
     String str = myClient.readString();
+    //println(str);
     messages.add(new message(str));
     myClient.clear();
   }
@@ -110,18 +145,18 @@ void draw() {
       if (messages.get(i).text == null) {
         messages.remove(i);
       } else {
-        messages.get(i).display(int(messages.get(i-1).y+messages.get(i-1).h+10));
-        messagesHeight+=messages.get(i).h;
+        messages.get(i).display(int(messages.get(i-1).y + messages.get(i-1).h + 10));
+        messagesHeight += messages.get(i).h;
         messages.get(i).update();
       }
     } else {
       messages.get(i).display(30);
-      messagesHeight+=messages.get(i).h;
+      messagesHeight += messages.get(i).h;
       messages.get(i).update();
     }
   }
 
-  if (messagesHeight+messages.size()*15 > height && messages.size() > 0) {
+  if (messagesHeight + messages.size()*15 > height && messages.size() > 0) {
     //messagesHeight -= messages.get(0).h;
     messages.remove(0);
   }
@@ -142,12 +177,12 @@ void draw() {
   } else {
     fill(red(modeColor), green(modeColor), blue(modeColor));
   }
-  rect(-10, height-30, width+10, 30);
+  rect(-10, height-30, width + 10, 30);
 
   if (mode.equals("dark") || mode.equals("light")) { // Typefield Text
     fill(0);
   } else {
-    if ((red(modeColor)+green(modeColor)+blue(modeColor))/3 < 100) {
+    if ((red(modeColor) + green(modeColor) + blue(modeColor))/3 < 100) {
       fill(255);
     } else {
       fill(0);
@@ -156,7 +191,7 @@ void draw() {
   if (textWidth(str)<width-20) {
     text(str, 12, height-10);
   } else {
-    text(str, 12-textWidth(str)+width-20, height-10);
+    text(str, 12-textWidth(str) + width-20, height-10);
   }
   textAlign(CENTER);
 
@@ -170,25 +205,26 @@ void draw() {
     } else if (red(modeColor) == 0 && green(modeColor) == 0 && blue(modeColor) == 0) {
       fill(red(modeColor), green(modeColor), blue(modeColor));
     } else if (red(modeColor) > 0) {
-      fill(red(modeColor)+50, 43, 124);
+      fill(red(modeColor) + 50, 43, 124);
     } else if (green(modeColor) > 0) {
-      fill(43, green(modeColor)+50, 124);
+      fill(43, green(modeColor) + 50, 124);
     } else if (blue(modeColor) > 0) {
-      fill(124, 43, blue(modeColor)+50);
+      fill(124, 43, blue(modeColor) + 50);
     }
   }
-  rect(-10, -10, width+20, 30);
+  rect(-10, -10, width + 20, 30);
 
   fill(255); // Notification Bar Text
-  if (mode.equals("dark") || mode.equals("light") || (red(modeColor)+green(modeColor)+blue(modeColor))/3 < 100) {
+  if (mode.equals("dark") || mode.equals("light") || (red(modeColor) + green(modeColor) + blue(modeColor))/3 < 100) {
     fill(255);
   } else {
     fill(10);
   }
   textSize(12);
   text(typing, width/2, 15);
-  textSize(11);
   textAlign(LEFT);
+  if(textWidth(server + ":" + str(port)) + 18 <= width/2 - textWidth(typing)/2) text(server + ":" + str(port), 5, 15);
+  textSize(11);
 }
 
 
@@ -200,6 +236,6 @@ public class DisposeHandler {
   }
 
   public void dispose() {      
-    myClient.write(username+"|DISCONNECT");
+    myClient.write(username + "|DISCONNECT");
   }
 }

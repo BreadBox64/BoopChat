@@ -1,5 +1,5 @@
-color[] rainbow = {color(255, 0, 0), color(255, 165, 0), color(255, 255, 0), color(0, 255, 0), color(0, 0, 255), color(128, 0, 128)};
-color[] rainbowText = {color(255), color(255), color(0), color(255), color(255), color(255)};
+color[] rainbow = {#FF0000, #FF8000, #FEFF00, #00FF00, #00FF81, #00FDFF, #007DFF, #0300FF, #8300FF, #FF00FB, #FF007C};
+boolean[] rainbowText = {true, true, false, false, false, false, false, true, true, true, false, true};
 
 class message { 
   float x, y; 
@@ -21,7 +21,7 @@ class message {
       tc = color(101);
       bg = color(205);
     } else {
-      if ((red(modeColor)+green(modeColor)+blue(modeColor))/3 < 100) {
+      if ((red(modeColor) + green(modeColor) + blue(modeColor))/3 < 100) {
         tc = color(255);
       } else {
         tc = color(0);
@@ -29,9 +29,10 @@ class message {
       bg = modeColor;
     }
 
-
+    // Connection Commands
+    
     if (in.contains("|CONFIRMONLINE")) {
-      myClient.write(username + " joined the chat!|BGBLUE|weight(5)|official");
+      myClient.write(username + " is in the chat!|BGBLUE|weight(5)|official");
     }
 
     if (in.length() >= 15 && in.substring(0, 14).equals("Users Online: ")) {
@@ -44,12 +45,12 @@ class message {
         println(list);
         if (list.contains(",")) {
           user = list.substring(0, list.indexOf(","));
-          list = list.substring(list.indexOf(",")+1);
+          list = list.substring(list.indexOf(",") + 1);
         } else {
           user = list;
           list = "";
         }
-        println("["+user+"]");
+        println("[" + user + "]");
         usersOnline.add(user);
       }
     }
@@ -61,7 +62,7 @@ class message {
       }
     }
     
-    if (in.contains("disconnected") && in.contains("|official")){
+    if (in.contains("disconnect") && in.contains("|official")){
       String tempUser = in.substring(0,in.indexOf(" "));
       for (int i=0; i<usersOnline.size(); i++){
         if (tempUser.equals(usersOnline.get(i))){
@@ -69,103 +70,65 @@ class message {
         }
       }
     }
-
+    
+    if(in.equals("|KICKALL")) exit();
+    if(in.equals("[SERVER] " + username + " has been kicked by Console!|BGRED|weight(5)")) exit();
+    
+    
     if (in.contains("|FLUSH")) {
       messages.clear();
       messages.add(new message("Messages flushed!|BGDARKBLUE|weight(5)|countdown(500)"));
     } else if (in.contains("|TYPING")) {
-      typing=in.substring(0, in.indexOf("|"))+" is typing...";
+      typing=in.substring(0, in.indexOf("|")) + " is typing...";
     } else if (in.contains("|NOTTYPING")) {
-      typing="Hello, "+username+"!";
+      typing="Hello, " + username + "!";
     } else { 
-      if (in.contains(username+":")) {
+      if (in.contains(username + ":")) {
         x = 0;
       } else {
         x = 20;
       }
+      
+      // Color Management
+      
+      for (String textColor : colorsDict.keyArray()) {
+        bg = (in.contains("|BG" + textColor)) ? colorsDict.get(textColor) : bg;
+        tc = (in.contains("|BG" + textColor) && textColor == "YELLOW") ? color(#000000) : color(#FFFFFF);
+      }
 
-      if (in.contains("|BGBLUE")) {
-        bg=color(0, 0, 255);
-        tc=color(255);
-      } else if (in.contains("|BGRED")) {
-        bg=color(255, 0, 0);
-        tc=color(255);
-      } else if (in.contains("|BGLIGHTBLUE")) {
-        bg=color(117, 214, 255);
-        tc=color(255);
-      } else if (in.contains("|BGDARKBLUE")) {
-        bg=color(4, 20, 76);
-        tc=color(255);
-      } else if (in.contains("|BGORANGE")) {
-        bg=color(255, 165, 0);
-        tc=color(255);
-      } else if (in.contains("|BGPINK")) {
-        bg=color(255, 20, 147);
-        tc=color(255);
-      } else if (in.contains("|BGMAROON")) {
-        bg=color(125, 10, 45);
-        tc=color(255);
-      } else if (in.contains("|BGGREEN")) {
-        bg=color(0, 255, 0);
-        tc=color(255);
-      } else if (in.contains("|BGDARKGREEN")) {
-        bg=color(0, 100, 65);
-        tc=color(255);
-      } else if (in.contains("|BGYELLOW")) {
-        bg=color(255, 255, 0);
-        tc=color(0);
-      } else if (in.contains("|BGPURPLE")) {
-        bg=color(128, 0, 128);
-        tc=color(255);
-      } else if (in.contains("|bgrgb(")) {
+      if (in.contains("|bgrgb(")) {
         String storage = in;
-        int r = int(in.substring(in.indexOf("(")+1, in.indexOf(",")));
-        storage = in.substring(in.indexOf(",")+1);
+        int r = int(in.substring(in.indexOf("(") + 1, in.indexOf(",")));
+        storage = in.substring(in.indexOf(",") + 1);
         int g = int(storage.substring(0, storage.indexOf(",")));
-        int b = int(storage.substring(storage.indexOf(",")+1, storage.indexOf(")")));
+        int b = int(storage.substring(storage.indexOf(",") + 1, storage.indexOf(")")));
         bg = color(r, g, b);
         tc = color(255-red(bg), 255-green(bg), 255-blue(bg));
       }
-
-      if (in.contains("|BLUE")) {
-        tc=color(0, 0, 255);
-      } else if (in.contains("|RED")) {
-        tc=color(255, 0, 0);
-      } else if (in.contains("|LIGHTBLUE")) {
-        tc=color(117, 214, 255);
-      } else if (in.contains("|DARKBLUE")) {
-        tc=color(4, 20, 76);
-      } else if (in.contains("|ORANGE")) {
-        tc=color(255, 165, 0);
-      } else if (in.contains("|PINK")) {
-        tc=color(255, 20, 147);
-      } else if (in.contains("|MAROON")) {
-        tc=color(125, 10, 45);
-      } else if (in.contains("|GREEN")) {
-        tc=color(0, 255, 0);
-      } else if (in.contains("|DARKGREEN")) {
-        tc=color(0, 100, 65);
-      } else if (in.contains("|YELLOW")) {
-        tc=color(255, 255, 0);
-      } else if (in.contains("|PURPLE")) {
-        tc=color(128, 0, 128);
-      } else if (in.contains("|rgb(")) {
+      
+      for (String textColor : colorsDict.keyArray()){ // This for loop replaces all the if-else statements
+        tc = (in.contains('|' + textColor)) ? colorsDict.get(textColor) : tc;
+      } 
+        
+      if (in.contains("|rgb(")) {
         String storage = in;
-        int r = int(in.substring(in.indexOf("(")+1, in.indexOf(",")));
-        storage = in.substring(in.indexOf(",")+1);
-        int g = int(storage.substring(0, storage.indexOf(",")));
-        int b = int(storage.substring(storage.indexOf(",")+1, storage.indexOf(")")));
+        int r = int(trim(in.substring(in.indexOf("(") + 1, in.indexOf(","))));
+        storage = in.substring(in.indexOf(",") + 1);
+        int g = int(trim(storage.substring(0, storage.indexOf(","))));
+        int b = int(trim(storage.substring(storage.indexOf(",") + 1, storage.indexOf(")"))));
         tc = color(r, g, b);
       }
-
+      
+      // Misc. Text Management
+      
       if (in.contains("|weight(")) {
         String storage = in.substring(in.indexOf("|weight"));
-        weight = int(storage.substring(storage.indexOf("(")+1, storage.indexOf(")")));
+        weight = int(storage.substring(storage.indexOf("(") + 1, storage.indexOf(")")));
       }
 
       if (in.contains("|countdown(")) {
         String storage = in.substring(in.indexOf("|countdown"));
-        countdown = int(storage.substring(storage.indexOf("(")+1, storage.indexOf(")")));
+        countdown = int(storage.substring(storage.indexOf("(") + 1, storage.indexOf(")")));
       }
 
       if (in.contains("|UC")) {
@@ -175,33 +138,33 @@ class message {
       } else if (in.contains("|")) {
         text = in.substring(0, in.indexOf("|"));
       } else {
-        text=in;
+        text = in;
       }
 
       if (rainbowMode == true) {
         bg = rainbow[rainbowStep];
-        tc = rainbowText[rainbowStep];
-        rainbowStep = (rainbowStep+1)%6;
+        tc = rainbowText[rainbowStep] ? #FFFFFF : #000000;
+        rainbowStep = (rainbowStep + 1) % rainbow.length;
       }
     }
 
     if (mode.equals("light")) {
-      bg = color(red(bg)+50, green(bg)+50, blue(bg)+50);
+      bg = color(red(bg) + 50, green(bg) + 50, blue(bg) + 50);
     }
   }
 
   void display(int pos) {
     if (text == null) {
     } else {
-      if (text.contains(username+":")) {
-        x = 0+largeWindowAdjust;
+      if (text.contains(username + ":")) {
+        x = 20 + largeWindowAdjust;
       } else {
-        x = 20+largeWindowAdjust;
+        x = 0 + largeWindowAdjust;
       }
 
-      w = width-20-largeWindowAdjust; 
-      lines = int(textWidth(text)/(w-15));
-      h = 30+lines*20;
+      w = width-20 - largeWindowAdjust; 
+      lines = int(textWidth(text) / (w-15));
+      h = 30 + lines*20;
       y = pos;
       pushStyle();
       rectMode(CORNER);
@@ -211,14 +174,14 @@ class message {
       } else if (mode.equals("light")) {
         stroke(red(bg)/1.25, green(bg)/1.25, blue(bg)/1.25);
       } else {
-        stroke((red(bg)+red(modeColor))/4, (green(bg)+green(modeColor))/4, (blue(bg)+blue(modeColor))/4);
+        stroke((red(bg) + red(modeColor))/4, (green(bg) + green(modeColor))/4, (blue(bg) + blue(modeColor))/4);
       }
 
       strokeWeight(weight);
       rect(x, y, w, h);
 
       fill(tc);
-      text(text, x+8, y+10, w-15, h-10);
+      text(text, x + 8, y + 10, w-15, h-10);
       popStyle();
     }
   }

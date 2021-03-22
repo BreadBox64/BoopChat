@@ -1,32 +1,14 @@
 void setModeColor() {
-  if (mode.equals("blue")) {
-    modeColor=color(0, 0, 255);
-  } else if (mode.equals("red")) {
-    modeColor=color(150, 0, 0);
-  } else if (mode.equals("lightblue")) {
-    modeColor=color(1, 150, 205);
-  } else if (mode.equals("darkblue")) {
-    modeColor=color(4, 20, 76);
-  } else if (mode.equals("orange")) {
-    modeColor=color(255, 100, 1);
-  } else if (mode.equals("pink")) {
-    modeColor=color(255, 20, 147);
-  } else if (mode.equals("maroon")) {
-    modeColor=color(75, 0, 10);
-  } else if (mode.equals("green")) {
-    modeColor=color(0, 150, 0);
-  } else if (mode.equals("darkgreen")) {
-    modeColor=color(1, 50, 25);
-  } else if (mode.equals("gold")) {
-    modeColor=color(255, 195, 1);
-  } else if (mode.equals("purple")) {
-    modeColor=color(64, 0, 100);
-  } else if (mode.contains("rgb(") && mode.contains(")")) {
+  for (String textColor : colorsDict.keyArray()){ // This for loop replaces all the if-else statements
+    modeColor = (mode.equals(textColor)) ? colorsDict.get(textColor) : modeColor;
+  }
+  
+  if (mode.contains("rgb(") && mode.contains(")")) {
     String storage = mode;
-    int rr = int(mode.substring(mode.indexOf("(")+1, mode.indexOf(",")));
-    storage = mode.substring(mode.indexOf(",")+1);
-    int rg = int(storage.substring(0, storage.indexOf(",")));
-    int rb = int(storage.substring(storage.indexOf(",")+1, storage.indexOf(")")));
+    int rr = int(trim(mode.substring(mode.indexOf("(") + 1, mode.indexOf(","))));
+    storage = mode.substring(mode.indexOf(",") + 1);
+    int rg = int(trim(storage.substring(0, storage.indexOf(","))));
+    int rb = int(trim(storage.substring(storage.indexOf(",") + 1, storage.indexOf(")"))));
     modeColor=color(rr, rg, rb);
   }
 }
@@ -40,7 +22,7 @@ void modeBG() {
     background(220);
   } else { // User-defined colors w/ rgb(r,g,b)|MODE command
     if (red(modeColor) > 0 && green(modeColor) > 0 && blue(modeColor) > 0) { // Non-black color
-      if ((red(modeColor)+green(modeColor)+blue(modeColor))/3 < 100) { // Overall dark
+      if ((red(modeColor) + green(modeColor) + blue(modeColor))/3 < 100) { // Overall dark
         background(red(modeColor)/3, green(modeColor)/3, blue(modeColor)/3);
       } else { // Overall light
         background(red(modeColor)*.9, green(modeColor)*.9, blue(modeColor)*.9);
@@ -67,7 +49,7 @@ void largeModeDisplay() {
     fill(red(modeColor)/1.1, green(modeColor)/1.1, blue(modeColor)/1.1);
   }
   if (width/5 < 200) {
-    largeWindowAdjust = width/5+2;
+    largeWindowAdjust = width/5 + 2;
     rect(0, 0, width/5, height-30);
 
     fill(255);
@@ -82,7 +64,7 @@ void largeModeDisplay() {
 
     int pos = 0;
     for (String u : usersOnline) {
-      text(u, 10, 60+pos); // Display usernames
+      text(u, 10, 60 + pos); // Display usernames
       pos += 15;
     }
   } else {
@@ -101,7 +83,7 @@ void largeModeDisplay() {
 
     int pos = 0;
     for (String u : usersOnline) {
-      text(u, 10, 60+pos); // Display usernames
+      text(u, 10, 60 + pos); // Display usernames
       pos += 15;
     }
   }

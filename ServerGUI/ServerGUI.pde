@@ -45,7 +45,7 @@ ArrayList<User> users = new ArrayList<User>();
 
 void setup() {
   size(500, 300);
-
+  
   surface.setResizable(true);
   myServer = new Server(this, port);
   dh = new DisposeHandler(this);
@@ -98,6 +98,7 @@ void draw() {
     myServerRunning = false;
     timer = 300;
   } else if (timer == 0 && myServerRunning == false) { // Stop server
+    myServer.write("|KICKALL");
     stopServer();
   } else if (timer == 0 && userTimer == true) { // Announce end of timer started by user
     userTimer = false;
@@ -158,8 +159,20 @@ void keyPressed() {
     if (str == "start typing...") {
       str="";
     }
-    str = str+key;
+    str = prune(keyCode) ? str+key : str;
   }
+}
+
+boolean prune(int input) {
+  boolean output = false;
+  output = (input == 32) ? true : output;
+  output = (input >= 44 && input <= 57) ? true : output;
+  output = (input == 59) ? true : output;
+  output = (input == 61) ? true : output;
+  output = (input >= 65 && input <= 93) ? true : output;
+  output = (input == 192) ? true : output;
+  output = (input == 222) ? true : output;
+  return output;
 }
 
 void mouseClicked() {
@@ -354,7 +367,7 @@ void matchTerms(String in, Client thisClient) { // Eventually move some response
     thisClient.write(in.substring(in.indexOf(":")+2, in.indexOf("|"))+" • Server Version: "+version+" • Latest Client: "+latestClient+"|BGBLUE|weight(5)");
   } else if (in.contains("|COMMANDS")) {
     messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | "+in);
-    thisClient.write("Commands must be preceeded by shift+\\. Commands: bgrgb(r,g,b)  rgb(r,g,b)  VERSION  STOP  MATH  NC  timer(ms)  FLUSH  weight(pixels)  countdown(ms)  UC  LC|BGRGB(0,0,0)");
+    thisClient.write("Commands must be preceeded by pipe ( | ). Commands: bgrgb(r,g,b)  rgb(r,g,b)  VERSION  STOP  MATH  NC  timer(ms)  FLUSH  weight(pixels)  countdown(ms)  UC  LC|BGRGB(0,0,0)");
   }else if (in.contains("|msg(")){
     messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | "+in);
     String target = in.substring(in.indexOf("(")+1,in.indexOf(")"));
@@ -362,15 +375,18 @@ void matchTerms(String in, Client thisClient) { // Eventually move some response
     String msg = in.substring(in.indexOf(":")+1, in.indexOf("|"));
     for (User targetClient:users){
       if (target.equals(targetClient.getName())){
-        targetClient.getClient().write("["+from+" -> You]"+msg+"|bgrgb(50,50,50)|weight(5)");
+        targetClient.getClient().write("[" + from + " -> You]" + msg + "|bgrgb(50,50,50)|weight(5)");
+      }
+      if (from.equals(targetClient.getName())){
+        targetClient.getClient().write("[You -> " + target + "]" + msg + "|bgrgb(50,50,50)|weight(5)");
       }
     }
     
-  }else if (in.contains("|timer(")) {
+  } else if (in.contains("|timer(")) {
     messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | "+in);
-    myServer.write(in.substring(0, in.indexOf(":"))+" has started a timer for "+round(int(in.substring(in.indexOf("(")+1, in.indexOf(")")))/frameRate)+" seconds!|BGORANGE|weight(5)");
+    myServer.write(in.substring(0, in.indexOf(":"))+" has started a timer for "+round(int(in.substring(in.indexOf("(")+1, in.indexOf(")"))))+" seconds!|BGORANGE|weight(5)");
     userTimer = true;
-    timer = int(in.substring(in.indexOf("(")+1, in.indexOf(")")));
+    timer = int(float(in.substring(in.indexOf("(")+1, in.indexOf(")"))) * frameRate);
   } else if (in.contains("|MATH")) {
     try {
       if (in.contains("*") || in.contains("times") || in.contains("multiply") || in.contains("product") || in.contains("x") || in.contains("(")) {

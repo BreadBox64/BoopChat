@@ -12,7 +12,6 @@ The guiding principles of BoopChat are very simple. We wanted to communicate in 
 2. Delete the ServerGUI and Mobile folders
 3. As of right now, you must have [Processing](https://processing.org/download/) installed. This will change in the future.
 4. Open and run ClientGUI.pde
-  a. This will connect you to the main BoopChat server. Change the IP on line 81 if you wish to connect to a different server.
 
 ### Client-only, mobile only:
 1. Download the BoopChat repository (Extra all files when prompted)
@@ -30,28 +29,140 @@ The guiding principles of BoopChat are very simple. We wanted to communicate in 
   b. To test your server, use the client and connect via "localhost."
   c. After you go through the steps of port forwarding, other users can join your server
 
-
 # Usage
 
 The most basic usage of BoopChat is typing a word or phrase and pressing enter (For mobile users, a tap on the upper half of the screen is equivalent). While this simple usage allows a very straightforward messaging service, BoopChat *does* offer some great commands.
-
-All commands are preceeded by a ``|`` symbol.
-
+All commands are preceeded by a ```|``` symbol.
 Text Background | Text Color | Styling | Message Management | Utility | Server Management
------------- | ------------- | ------------- | ------------- | ------------- | -------------
-BGRED | RED | weight(int) | UC | MATH | STOP
-BGPINK | PINK | RAINBOW | LC | timer(float) | KICK
-BGMAROON | MAROON |  | countdown(int) | COMMANDS | FLUSH
-BGPURPLE | PURPLE |  | msg(user) | VERSION
-BGBLUE | BLUE | 
-BGLIGHTBLUE | LIGHTBLUE
-BGDARKBLUE | DARKBLUE
-BGGREEN | GREEN
-BGDARKGREEN | DARKGREEN
-BGYELLOW | YELLOW
-BGORANGE | ORANGE
-bgrgb(r,g,b) | rgb(r,g,b)
 
+### Background Colors
+May be combined with other commands
+For all named bgcolors:
+  Usage:
+  ```msg|BGCOLOR```
+  Example:
+  ```Kerbal|BGGREEN```
+* BGRED
+* BGYELLOW
+* BGORANGE
+* BGGREEN
+* BGDARKGREEN
+* BGBLUE
+* BGLIGHTBLUE
+* BGDARKBLUE
+* BGPURPLE
+* BGPINK
+* BGMAROON
+* BGBLACK
+* BGGREY
+* BGWHITE
+* bgrgb(int,int,int)
+
+### Text Colors
+May be combined with other commands
+For all named colors:
+  Usage:
+  ```msg|COLOR```
+  Example:
+  ```Depressed Crab|BGBLUE|WHITE```
+* RED
+* YELLOW
+* ORANGE
+* GREEN
+* DARKGREEN
+* BLUE
+* LIGHTBLUE
+* DARKBLUE
+* PURPLE
+* PINK
+* MAROON
+* BLACK
+* GREY
+* WHITE
+* rgb()
+  Usage:
+  ```msg|rgb(int,int,int)```
+  Example:
+  ```I am issuing you another stern warning!|BGBLUE|rgb(240, 240, 245)```
+
+### Styling
+May be combined with other commands
+* weight()
+  Usage:
+  ```msg|weight(int)```
+  Example:
+  ```Hello John!|RED|weight(4)```
+* RAINBOW
+  Toggles the background of messages cycling in a rainbow pattern
+  Usage:
+  ```msg|RAINBOW```
+
+### Message Management
+May be combined with other commands
+
+* 
+May not be combined with other commands
+* msg()
+  Sends a private message to another client
+  Usage:
+  ```msg|msg(recipent)```
+  Example:
+  ```Hello|msg(John)```
+
+### Utility
+May not be combined with other commands
+* EXIT
+  Closes the BoopChat client
+  Usage:
+  ```|EXIT```
+  
+* COMMANDS
+  Lists all commands
+  Usage:
+  ```|COMMANDS```
+  
+* VERSION
+  Lists client version, server version and latest client version
+  Usage:
+  ```|VERSION```
+  
+* ONLINE
+  Lists all online users
+  Usage:
+  ```|ONLINE```
+* DISCONNECT
+  Force disconnect from server
+  Usage:
+  ```|DISCONNECT```
+
+* CLEAR
+  Clears screen of messages
+  Usage:
+  ```|CLEAR```
+* CHANGENAME
+  Usage:
+  ```newName|CHANGENAME```
+  Example:
+  ```Louis MXIV|CHANGENAME```
+* CHANGESERVER
+  Usage:
+  ```newServerIP|CHANGESERVER```
+  Example:
+  ```localhost|CHANGESERVER```
+* CHANGEPORT
+  Usage:
+  ```newPort|CHANGEPORT```
+  Note that ```newPort``` must be an integer.
+  Example:
+  ```10024|CHANGEPORT```
+
+### Server Management
+May be combined with other commands
+* STOP
+  Shuts down the server within 3 seconds
+  Usage:
+  ```|STOP```
+May be combined with other commands
 
 ## Images
 

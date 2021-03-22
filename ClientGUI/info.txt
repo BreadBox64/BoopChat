@@ -1,2 +1,4 @@
-ChangeNameNOW
-rgb(20,40,80)
+SetYourNameBro
+rgb(0,30,60)
+localhost
+10002
