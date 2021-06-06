@@ -26,12 +26,14 @@
 
 // IMPORTS
 import processing.net.*;
+import uibooster.*;
 
 // NETWORK
 Client myClient;
-//Server localServer;
+Server localServer;
 DisposeHandler dh;
 int port = 10001;
+boolean serverOp = false;
 
 // PLACEHOLDERS
 String str = "start typing...";
@@ -45,6 +47,7 @@ int typingFrameLimit = 250;
 int rainbowStep = 0;
 int largeWindowAdjust = 0;
 Boolean isTyping = false;
+UiBooster booster;
 
 // USER SETTINGS
 String version = "1.0.7"; // IF YOU UPDATE THIS, UPDATE LATESTCLIENT ON SERVER AS WELL
@@ -67,6 +70,8 @@ void setup() {
   size(300, 500);
   surface.setResizable(true);
   dh = new DisposeHandler(this);
+  
+  booster = new UiBooster();
 
   // LOAD SETTINGS
   String[] info = new String[4];
@@ -227,7 +232,9 @@ void draw() {
   textSize(11);
 }
 
-
+void notification(String text) {
+  if(!focused) booster.createNotification(text, "BoopChat");
+}
 
 // Disconnect Event
 public class DisposeHandler {

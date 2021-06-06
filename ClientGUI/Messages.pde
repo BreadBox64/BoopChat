@@ -74,7 +74,6 @@ class message {
     if(in.equals("|KICKALL")) exit();
     if(in.equals("[SERVER] " + username + " has been kicked by Console!|BGRED|weight(5)")) exit();
     
-    
     if (in.contains("|FLUSH")) {
       messages.clear();
       messages.add(new message("Messages flushed!|BGDARKBLUE|weight(5)|countdown(500)"));
@@ -151,6 +150,8 @@ class message {
     if (mode.equals("light")) {
       bg = color(red(bg) + 50, green(bg) + 50, blue(bg) + 50);
     }
+    
+    if(in.contains("|NOTIFY")) notification(text);
   }
 
   void display(int pos) {

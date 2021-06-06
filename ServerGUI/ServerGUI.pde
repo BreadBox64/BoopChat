@@ -11,11 +11,44 @@
 
 // IMPORTS
 import processing.net.*;
+import java.time.*;
 
 // SERVER
 Server myServer;
 DisposeHandler dh;
 int port = 10001;
+char logMode = 'N'; /*
+Method with which to save the debug log, these are the options:
+'N' No logs are saved.
+'G' Logs are grouped into folders by date and named by time.
+'F' Logs are all in a single folder and are named with date & time,
+'D' Logs are grouped into folder by month and named by day and time.
+*/
+String timeMode = "HWI!1-2-3-24!-:"; /*
+What kind of timestamp to use.
+The timestamp mode is made of three parts, the system, the format, and the delimiter.
+It is written like this: "system!format!delimiter"
+
+== Systems ==
+First select a year system: 'S' or 'H', S is the Gregorian calender, H is the Holocene Epoch calender
+Next select a divisional system: 'M' or 'W', M for month of the year & W for week of the year
+Finally select a day system: 'D' or 'I', I for the day number, D for the name
+In addition, you can append 'N' to change month numbers to names
+Example: "SMI" = 2021/08/24
+
+== Formats ==
+"1-2-3-24" A Year-Month-Day format with 24 hour time
+"3-2-3-24" A Day-Month-Year format with 24 hour time
+"2-3-1-24" A Month-Day-Year format with 24 hour time
+"1-2-3-12" A Year-Month-Day format with 12 hour time
+"3-2-1-12" A Day-Month-Year format with 12 hour time
+"2-3-1-12" A Month-Day-Year format with 12 hour time
+
+== Delimiter Style ==
+The delimiter is any two characters (Other than '!') next to eachother, the first will be used to delimit the date, the second; time.
+Example: "SMI;1-2-3-24;/:" would produce "YEAR/MONTH/DAY | HOUR:MINUTE:SECOND"
+*/
+
 String msg;
 String str = "start typing...";
 boolean myServerRunning = true;
@@ -25,19 +58,16 @@ String version = "1.1.1";
 String latestClient = "1.0.6";
 
 // REGULATORS
-float timer = 1; // Make multiple timers a possibility in future by using array
 int logLimit = 50; // Log every 50 messages
 int messagesPos = 0;
 int pingClock = 500; // Check if users are online every 5 seconds
 boolean shutdown = false;
 Boolean logging = true;
-Boolean userTimer = false; // Eventually turn timer system into object-based thing. Store usernames & refence who started what timer, etc. Also personal timers.
 
 // LISTS
 ArrayList<String> messages = new ArrayList<String>();
 ArrayList<User> users = new ArrayList<User>();
-
-
+ArrayList<Timer> timers = new ArrayList<Timer>();
 
 //*****************************//
 //       SETUP  FUNCTION       //
@@ -52,8 +82,6 @@ void setup() {
 
   startupUI();
 }
-
-
 
 //*****************************//
 //        DRAW FUNCTION        //
@@ -76,34 +104,40 @@ void draw() {
   }
 
   // Change amount of messages displayed based on window size
-  if (messages.size()-messagesPos > int((height- 66)/12) && messages.size() > 0 && users.size() > 0) {
+  if (messages.size() - messagesPos > int((height - 66) / 12) && messages.size() > 0 && users.size() > 0) {
     messagesPos += 1;
-  } else if (messages.size()-messagesPos > int((height-32)/12) && messages.size() > 0 && users.size() == 0) {
+  } else if (messages.size() - messagesPos > int((height - 32) / 12) && messages.size() > 0 && users.size() == 0) {
     messagesPos += 1;
   }
 
   // Update log every so often
-  if (messages.size()-50 >= logLimit) {
+  if (messages.size() - 50 >= logLimit) {
     logMessages();
   }
 
   //*****************************//
   // TIMER MANAGEMENT & RESPONSE //
   //*****************************//
-
-  if (timer > 0) { // Decrease timer with each tick
-    timer--;
-  } else if (timer == 0 && shutdown == true) { // Begin shutdown process
-    shutdown = false;
-    myServerRunning = false;
-    timer = 300;
-  } else if (timer == 0 && myServerRunning == false) { // Stop server
-    myServer.write("|KICKALL");
-    stopServer();
-  } else if (timer == 0 && userTimer == true) { // Announce end of timer started by user
-    userTimer = false;
-    myServer.write("Timer has ended!|BGRED|weight(5)");
-    messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | Timer has ended!|BGRED|weight(5)");
+  
+  for(Timer temp : timers) {
+    temp.onStep();
+    if(temp.isComplete) {
+      if(temp.owner.name == "SERVER") {
+        if(shutdown == true) {
+          shutdown = false;
+          myServerRunning = false;
+          timers.add(new Timer(300));
+        }
+        if(myServerRunning == false) {
+          myServer.write("|KICKALL");
+          stopServer();
+        }
+      } else {
+        if(temp.broadcast) myServer.write("Timer has ended!|BGRED|weight(5)"); else temp.owner.myClient.write("Timer has ended!|BGRED|weight(5)");
+        messages.add(getTimeStamp() + " | Timer has ended!|BGRED|weight(5)");
+      }
+      timers.remove(temp);
+    }
   }
 
   if (pingClock > 0) { // Decrease pingClock with each tick
@@ -124,15 +158,16 @@ void draw() {
 
 void keyPressed() {
   if (key=='~') { // SHUTDOWN
+    timers.add(new Timer(1));
     shutdown = true;
-    messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | SERVER-SIDE SHUTDOWN INITIATED");
-    myServer.write("STOPPING SERVER (3 seconds) • COMMAND EXECUTED BY CONSOLE|BGRED|weight(5)");
+    messages.add(getTimeStamp() + " | SERVER-SIDE SHUTDOWN INITIATED");
+    myServer.write("STOPPING SERVER (3 seconds) • COMMAND EXECUTED BY CONSOLE|BGRED|weight(5)|NOTIFY");
   } else if (key == ENTER) { // CONSOLE SENDING MESSAGE
     if (str.equals("start typing...")) {
     } else if (str.contains("|KICK")) {
       String person = str.substring(0, str.indexOf("|"));
-      myServer.write("[SERVER] "+person+" has been kicked by Console!|BGRED|weight(5)");
-      messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | [SERVER] "+person+" has been kicked by Console!|BGRED|weight(5)");
+      myServer.write("[SERVER] "+person+" has been kicked by Console!|BGRED|weight(5)|NOTIFY");
+      messages.add(getTimeStamp() + " | [SERVER] "+person+" has been kicked by Console!|BGRED|weight(5)|NOTIFY");
 
       for (int i=0; i<users.size(); i++) {
         if (users.get(i).getName().equals(person)) {
@@ -141,7 +176,7 @@ void keyPressed() {
       }
     } else { // GENERAL MESSAGES
       myServer.write("[SERVER] "+str+"|BGPINK|weight(5)");
-      messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | [SERVER] "+str+"|BGPINK|weight(5)");
+      messages.add(getTimeStamp() + " | [SERVER] "+str+"|BGPINK|weight(5)");
     }
 
     str = "start typing...";
@@ -177,14 +212,15 @@ boolean prune(int input) {
 
 void mouseClicked() {
   if (mouseX >= 10 && mouseX <= 15 && mouseY >= 5 && mouseY <= 10) { // SHUTDOWN
+    timers.add(new Timer(1));
     shutdown = true;
-    messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | SERVER-SIDE SHUTDOWN INITIATED");
-    myServer.write("STOPPING SERVER (3 seconds) • COMMAND EXECUTED BY CONSOLE|BGRED|weight(5)");
+    messages.add(getTimeStamp() + " | SERVER-SIDE SHUTDOWN INITIATED");
+    myServer.write("STOPPING SERVER (3 seconds) • COMMAND EXECUTED BY CONSOLE|BGRED|weight(5)|NOTIFY");
   } else if (mouseX >= 27 && mouseX <= 32 && mouseY >= 5 && mouseY <= 10) { // FLUSH
-    messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | SERVER-SIDE FLUSH INITIATED");
+    messages.add(getTimeStamp() + " | SERVER-SIDE FLUSH INITIATED");
     myServer.write("|FLUSH");
   } else if (mouseX >= 44 && mouseX <= 49 && mouseY >= 5 && mouseY <= 10) { // PING
-    messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | SERVER-SIDE PING INITIATED");
+    messages.add(getTimeStamp() + " | SERVER-SIDE PING INITIATED");
     for (int i=0; i<users.size(); i++) {
       users.get(i).verifyOnline();
     }
@@ -202,7 +238,6 @@ void startupUI() {
   pushStyle();
   background(0, 100, 155);
   rectMode(CORNERS);
-
   fill(200);
   stroke(255);
   strokeWeight(10);
@@ -305,7 +340,7 @@ void stopServerUI() {
   fill(255);
   textAlign(CENTER);
   textSize(20);
-  text("Shutting down in "+(1+round(timer)/100)+" seconds...", 0, 40, width, 40);
+  text("Shutting down in a few seconds...", 0, 40, width, 40);
   popStyle();
 }
 
@@ -344,13 +379,13 @@ void matchTerms(String in, Client thisClient) { // Eventually move some response
         users.get(i).setName(in.substring(in.indexOf("to ")+3, in.indexOf("!"))); // Alter user's stored name
       }
     }
-    messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | "+in);
+    messages.add(getTimeStamp() + " | "+in);
     myServer.write(in);
   } else if (in.contains("|ONLINE")) { // LIST OF ONLINE USERS
     thisClient.write(online(thisClient));
   } else if (in.contains("|DISCONNECT")) { // DISCONNECT EVENT (REPLACE LATER)
     myServer.write(in.substring(0, in.indexOf("|"))+" has disconnected!|BGRED|weight(5)");
-    messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | "+in.substring(0, in.indexOf("|"))+" has disconnected!|BGRED|weight(5)");
+    messages.add(getTimeStamp() + " | "+in.substring(0, in.indexOf("|"))+" has disconnected!|BGRED|weight(5)");
     for (int i=0; i<users.size(); i++) {
       if (users.get(i).getClient().equals(thisClient)) { // Match who disconnected to remove them from online list
         pingClock = 500;
@@ -358,35 +393,37 @@ void matchTerms(String in, Client thisClient) { // Eventually move some response
       }
     }
   } else if (in.contains("|STOP")) { // INITIATE SHUTDOWN
-    timer = 200;
+    timers.add(new Timer(200));
     shutdown = true;
-    messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | STOPPING SERVER (2 seconds) • COMMAND EXECUTED BY IP: "+thisClient.ip()+"|BGRED|weight(5)");
+    messages.add(getTimeStamp() + " | STOPPING SERVER (2 seconds) • COMMAND EXECUTED BY IP: "+thisClient.ip()+"|BGRED|weight(5)");
     myServer.write("STOPPING SERVER (2 seconds) • COMMAND EXECUTED BY IP: "+thisClient.ip()+"|BGRED|weight(5)");
   } else if (in.contains("|VERSION")) {
-    messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | "+in);
-    thisClient.write(in.substring(in.indexOf(":")+2, in.indexOf("|"))+" • Server Version: "+version+" • Latest Client: "+latestClient+"|BGBLUE|weight(5)");
+    messages.add(getTimeStamp() + " | "+in);
+    thisClient.write(in.substring(in.indexOf(":") + 2, in.indexOf("|")) + " • Server Version: " + version + " • Latest Client: " + latestClient + "|BGBLUE|weight(5)");
   } else if (in.contains("|COMMANDS")) {
-    messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | "+in);
+    messages.add(getTimeStamp() + " | "+in);
     thisClient.write("Commands must be preceeded by pipe ( | ). Commands: bgrgb(r,g,b)  rgb(r,g,b)  VERSION  STOP  MATH  NC  timer(ms)  FLUSH  weight(pixels)  countdown(ms)  UC  LC|BGRGB(0,0,0)");
-  }else if (in.contains("|msg(")){
-    messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | "+in);
+  } else if (in.contains("|msg(")){
+    messages.add(year() + " - " + month() + " - "+ day()+" | "+hour()+":"+minute()+":" + second() + " | " + in);
     String target = in.substring(in.indexOf("(")+1,in.indexOf(")"));
     String from = in.substring(0,in.indexOf(":"));
     String msg = in.substring(in.indexOf(":")+1, in.indexOf("|"));
-    for (User targetClient:users){
+    for (User targetClient : users){
       if (target.equals(targetClient.getName())){
         targetClient.getClient().write("[" + from + " -> You]" + msg + "|bgrgb(50,50,50)|weight(5)");
-      }
-      if (from.equals(targetClient.getName())){
-        targetClient.getClient().write("[You -> " + target + "]" + msg + "|bgrgb(50,50,50)|weight(5)");
+        thisClient.write("[You -> " + target + "]" + msg + "|bgrgb(50,50,50)|weight(5)");
       }
     }
-    
   } else if (in.contains("|timer(")) {
-    messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | "+in);
-    myServer.write(in.substring(0, in.indexOf(":"))+" has started a timer for "+round(int(in.substring(in.indexOf("(")+1, in.indexOf(")"))))+" seconds!|BGORANGE|weight(5)");
-    userTimer = true;
-    timer = int(float(in.substring(in.indexOf("(")+1, in.indexOf(")"))) * frameRate);
+    messages.add(getTimeStamp() + " | "+in);
+    User owner = null;
+    for(User temp : users) {
+      if(temp.name == in.substring(0, in.indexOf(":"))) owner = temp;
+    }
+    if(owner == null) messages.add(getTimeStamp() + " | <ERROR> Timer had invalid owner, canceling timer creation!"); else {
+      timers.add(new Timer(owner, float(in.substring(in.indexOf("(")+1, in.indexOf(","))) * 100, boolean(in.substring(in.indexOf(",") + 1, in.indexOf(")")))));
+      if(boolean(in.substring(in.indexOf(",") + 1, in.indexOf(")")))) myServer.write(in.substring(0, in.indexOf(":")) + " has started a timer for " + float(in.substring(in.indexOf("(")+1, in.indexOf(","))) + " seconds!|BGORANGE|weight(5)");
+    }
   } else if (in.contains("|MATH")) {
     try {
       if (in.contains("*") || in.contains("times") || in.contains("multiply") || in.contains("product") || in.contains("x") || in.contains("(")) {
@@ -431,7 +468,7 @@ void matchTerms(String in, Client thisClient) { // Eventually move some response
       thisClient.write("Something went wrong. Please try again with different formatting.|BGRED|weight(5)");
     }
   } else if (in.contains(":") || in.contains("joined")) {
-    messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | "+in);
+    messages.add(getTimeStamp() + " | "+in);
     myServer.write(in);
   }
 }
@@ -459,7 +496,7 @@ String online(Client c) {
 
 
 //*****************************//
-//       USER DEFINITION       //
+//      CLASS DEFINITIONS      //
 //*****************************//
 
 public class User {
@@ -468,6 +505,10 @@ public class User {
 
   User(Client c, String id) {
     myClient = c;
+    name = id;
+  }
+  
+  User(String id) {
     name = id;
   }
 
@@ -485,27 +526,116 @@ public class User {
 
   void verifyOnline() {
     if (!myClient.active()) {
-      messages.add(month()+"/"+day()+"/"+year()+" | "+hour()+":"+minute()+":"+second()+" | Detected disconnect: "+name+" has lost connection");
+      messages.add(getTimeStamp() + " | Detected disconnect: "+name+" has lost connection");
       myServer.write(name+" has lost connection|BGRED|weight(5)");
       users.remove(this); // Remove user is not found to be active
     }
   }
 }
 
+class Timer {
+  boolean isComplete;
+  boolean broadcast;
+  float timeLeft;
+  User owner;
+  
+  Timer(User newOwner, float time, boolean _broadcast) {
+    isComplete = false;
+    timeLeft = time;
+    owner = newOwner;
+    broadcast = _broadcast;
+  }
+  
+  Timer(float time) {
+    isComplete = false;
+    timeLeft = time;
+    owner = new User("SERVER");
+    broadcast = false;
+  }
+  
+  void onStep() {
+    if(timeLeft < 1) {
+      timeLeft = 0;
+      isComplete = true;
+    } else {
+      timeLeft--;
+    }
+  }
+}
 
+//*****************************//
+//      UTILITY FUNCTIONS      //
+//*****************************//
+
+String getTimeStamp(String timeMode) {
+  LocalDateTime now = LocalDateTime.now();
+  String output = "";
+  String[] parts = split(timeMode, '!');
+  String[] align = split(parts[1], '-');
+  char delimDate = parts[2].charAt(0);
+  char delimTime = parts[2].charAt(1);
+  String[] timeParts = new String[3];
+  if(parts[0].contains("H")) timeParts[0] = str(now.getYear() + 10000);
+  if(parts[0].contains("S")) timeParts[0] = str(now.getYear());
+  if(parts[0].contains("W")) timeParts[1] = nf(getWeekOfYear(now), 2);
+  if(parts[0].contains("M")) timeParts[1] = nf(now.getMonthValue(), 2);
+  if(parts[0].contains("M") && parts[0].contains("N")) timeParts[1] = now.getMonth().name();
+  if(parts[0].contains("W") && parts[0].contains("I")) timeParts[2] = nf(now.getDayOfWeek().getValue(), 2);
+  if(parts[0].contains("M") && parts[0].contains("I")) timeParts[2] = nf(now.getDayOfMonth(), 2);
+  if(parts[0].contains("D")) timeParts[2] = now.getDayOfWeek().name();
+  
+  // Sort the timeParts into order
+  String[] timePartsHold = timeParts;
+  timeParts[0] = timePartsHold[int(align[0]) - 1];
+  timeParts[1] = timePartsHold[int(align[1]) - 1];
+  timeParts[2] = timePartsHold[int(align[2]) - 1];
+  String anteOrPost = (now.getHour() > 12) ? "PM" : "AM" ;
+  
+  println(align[3].length());
+  // Assemble the timestamp
+  output += timeParts[0];
+  output += delimDate;
+  output += timeParts[1];
+  output += delimDate;
+  output += timeParts[2];
+  output += " | ";
+  if(align[3].equals("12")) output += nf((now.getHour() % 12), 2); else output += nf(now.getHour(), 2);
+  output += delimTime;
+  output += nf(now.getMinute(), 2);
+  output += delimTime;
+  output += nf(now.getSecond(), 2);
+  if(align[3].equals("12")) output += ' ' + anteOrPost;
+  return output;
+}
+
+int getWeekOfYear(LocalDateTime time) {
+  LocalDate begin = Year.of(time.getYear()).atMonth(1).atDay(1);
+  int offset = begin.getDayOfWeek().getValue() - 1;
+  return ceil((time.getDayOfYear() + offset)/7);
+}
 
 //*****************************//
 //       MESSAGE LOGGING       //
 //*****************************//
 
 void logMessages() {
-  if (logging == true) { // Implement way to disable logging later
-    String[] list = new String[messages.size()];
-    for (int i=messagesPos*19; i<messages.size(); i++) {
-      list[i] = messages.get(i);
-    }
-
-    saveStrings("logs/"+year()+"/"+month()+"/"+day()+"/"+hour()+"."+minute()+"."+second()+".txt", list);
+  String[] list = new String[messages.size()];
+  for (int i = messagesPos*19; i < messages.size(); i++) {
+    list[i] = messages.get(i);
+  }
+  switch(logMode) {
+    case 'N' :
+      // No logs, LEAVE EMPTY
+    break;
+    case 'F' :
+      saveStrings("logs/" + year() + "." + month() + "." + day() + "." + hour() + "." + minute() + "." + second() + ".txt", list);
+    break;
+    case 'D' :
+      saveStrings("logs/"+year()+"/"+month()+"/"+day()+"."+hour()+"."+minute()+"."+second()+".txt", list);
+    break;
+    default :
+      saveStrings("logs/"+year()+"/"+month()+"/"+day()+"/"+hour()+"."+minute()+"."+second()+".txt", list);
+    break;
   }
 } 
 
